@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أداة تصفير لمرة واحدة</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+  body{background:#0B1220;color:#EDEFF3;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}
+  .box{max-width:380px;background:#121B2E;border:1px solid rgba(201,162,39,0.3);border-radius:16px;padding:24px;text-align:center;}
+  h1{font-size:16px;margin:0 0 12px;}
+  p{font-size:13px;color:#97A1B3;line-height:1.8;}
+  button{background:#C9A227;color:#1B1404;border:none;border-radius:10px;padding:13px 20px;font-weight:bold;font-size:14px;cursor:pointer;margin-top:14px;width:100%;}
+  button:disabled{opacity:0.5;}
+  #status{margin-top:14px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>⚠️ تصفير المحجوزات والسجلات</h1>
+  <p>هذا يمسح: كل المحجوزات (الطرود)، سجل الحذف، وسجل الشفتات.<br><br>
+  <b>ما يمسح:</b> قائمة الموظفين والأدمن (تضل زي ما هي).<br><br>
+  هذا الملف لمرة واحدة بس — اقفله بعد ما تستخدمه.</p>
+  <button id="goBtn">تأكيد التصفير الآن</button>
+  <div id="status"></div>
+</div>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBNkq4IZbrumgiXoW9pdcedQLHJaLJJTK8",
+  authDomain: "dhl-customs-store.firebaseapp.com",
+  projectId: "dhl-customs-store",
+  storageBucket: "dhl-customs-store.firebasestorage.app",
+  messagingSenderId: "475536076422",
+  appId: "1:475536076422:web:0f0c94ef86ef901eef2b07"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const DOC = (name) => db.collection("warehouseApp").doc(name);
+
+document.getElementById("goBtn").addEventListener("click", async ()=>{
+  const btn = document.getElementById("goBtn");
+  const status = document.getElementById("status");
+  btn.disabled = true;
+  status.textContent = "جاري التصفير...";
+  try{
+    await DOC("items").set({ payload: [], updatedAt: Date.now() });
+    await DOC("deletedLog").set({ payload: [], updatedAt: Date.now() });
+    await DOC("shiftHistory").set({ payload: [], updatedAt: Date.now() });
+    status.textContent = "✅ تم التصفير بنجاح. الموظفون سليمون. تقدر تقفل هذا الملف الحين.";
+    status.style.color = "#34A870";
+  }catch(e){
+    status.textContent = "❌ صار خطأ: " + e.message;
+    status.style.color = "#D9584F";
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
